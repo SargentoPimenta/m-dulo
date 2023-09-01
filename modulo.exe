@@ -1,0 +1,23 @@
+//código do módulo 
+npm install<nome_do_modulo>
+//node_modules: abrirá as versóes dos arquivos que estão no módulo
+//cont.. package.json nosso. package-lock.json deles.
+//módulo: junção de códigos armazenados. através do impor e export: vão servir pra importar o código (e variáveis) e exportar.
+// export.
+export function soma(a,b) {
+    return a + b;
+}
+//export default.
+export default function soma (a,b) {
+    return a + b;
+}
+//o módulo facilita a gerenciação de arquivos
+
+//import 
+import { nomedaFunção, nomedaClasse, nomedaVariável} from 'caminho/do/modulo.js'
+import {soma} from './caminho/soma.js'
+
+//outras maneiras de chamar o import 
+import {soma as adicao} from './caminho/do/modulo;'
+import * as operacoes from '.caminho/do/modulo;'
+//
