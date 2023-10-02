@@ -1,0 +1,172 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+#define TAMANHO 6
+#define PORTA_AVIOES 'P'
+#define NAVIO_TANQUE 'T'
+#define CONTRATORPEDEIRO 'C'
+#define SUBMARINO 'S'
+#define AGUA '~'
+#define ERRO 'E'
+#define ACERTO 'A'
+
+void imprimirTabuleiro(char tabuleiro[TAMANHO][TAMANHO])
+{
+    printf("   ");
+    for (int i = 0; i < TAMANHO; i++)
+    {
+        printf("%d  ", i + 1);
+    }
+    printf("\n");
+
+    for (int i = 0; i < TAMANHO; i++)
+    {
+        printf("%c  ", 'A' + i);
+        for (int j = 0; j < TAMANHO; j++)
+        {
+            if (tabuleiro[i][j] == ACERTO)
+            {
+                printf("🚢 ");
+            }
+            else if (tabuleiro[i][j] == ERRO)
+            {
+                printf("❌ ");
+            }
+            else
+            {
+                printf("🌊 ");
+            }
+        }
+        printf("\n");
+    }
+}
+
+void inicializarTabuleiro(char tabuleiro[TAMANHO][TAMANHO])
+{
+    for (int i = 0; i < TAMANHO; i++)
+    {
+        for (int j = 0; j < TAMANHO; j++)
+        {
+            tabuleiro[i][j] = AGUA;
+        }
+    }
+}
+
+void posicionarNaviosAleatorios(char tabuleiro[TAMANHO][TAMANHO], char navio, int numNavios)
+{
+    int x, y;
+    for (int i = 0; i < numNavios; i++)
+    {
+        do
+        {
+            x = rand() % TAMANHO;
+            y = rand() % TAMANHO;
+        } while (tabuleiro[x][y] != AGUA);
+        tabuleiro[x][y] = navio;
+    }
+}
+
+int ataqueJogador(char tabuleiro[TAMANHO][TAMANHO], int* acertosJogador)
+{
+    int linha, coluna;
+    char entrada[5];
+
+    do
+    {
+        printf("Informe a coordenada para o seu ataque (ex: A1): ");
+        scanf("%s", entrada);
+        linha = entrada[0] - 'A';
+        coluna = entrada[1] - '1';
+    } while (linha < 0 || linha >= TAMANHO || coluna < 0 || coluna >= TAMANHO || tabuleiro[linha][coluna] == ERRO || tabuleiro[linha][coluna] == ACERTO);
+
+    if (tabuleiro[linha][coluna] == PORTA_AVIOES || tabuleiro[linha][coluna] == NAVIO_TANQUE || tabuleiro[linha][coluna] == CONTRATORPEDEIRO || tabuleiro[linha][coluna] == SUBMARINO)
+    {
+        printf("Você acertou!\n");
+        tabuleiro[linha][coluna] = ACERTO;
+        (*acertosJogador)++;
+        return 1;
+    }
+    else
+    {
+        printf("Você errou!\n");
+        tabuleiro[linha][coluna] = ERRO;
+        return 0;
+    }
+}
+
+int ataqueComputador(char tabuleiro[TAMANHO][TAMANHO], int* acertosComputador)
+{
+    int linha, coluna;
+
+    do
+    {
+        linha = rand() % TAMANHO;
+        coluna = rand() % TAMANHO;
+    } while (tabuleiro[linha][coluna] == ERRO || tabuleiro[linha][coluna] == ACERTO);
+
+    if (tabuleiro[linha][coluna] == PORTA_AVIOES || tabuleiro[linha][coluna] == NAVIO_TANQUE || tabuleiro[linha][coluna] == CONTRATORPEDEIRO || tabuleiro[linha][coluna] == SUBMARINO)
+    {
+        printf("A CPU acertou em %c %d!\n", 'A' + linha, coluna + 1);
+        tabuleiro[linha][coluna] = ACERTO;
+        (*acertosComputador)++;
+        return 1;
+    }
+    else
+    {
+        printf("A CPU errou em %c %d!\n", 'A' + linha, coluna + 1);
+        tabuleiro[linha][coluna] = ERRO;
+        return 0;
+    }
+}
+
+int main()
+{
+    char tabuleiroJogador[TAMANHO][TAMANHO];
+    char tabuleiroComputador[TAMANHO][TAMANHO];
+    int acertosJogador = 0, acertosComputador = 0;
+
+    srand(time(NULL));
+
+    inicializarTabuleiro(tabuleiroJogador);
+    inicializarTabuleiro(tabuleiroComputador);
+
+    posicionarNaviosAleatorios(tabuleiroJogador, PORTA_AVIOES, 1);
+    posicionarNaviosAleatorios(tabuleiroJogador, NAVIO_TANQUE, 2);
+    posicionarNaviosAleatorios(tabuleiroJogador, CONTRATORPEDEIRO, 2);
+    posicionarNaviosAleatorios(tabuleiroJogador, SUBMARINO, 3);
+
+    posicionarNaviosAleatorios(tabuleiroComputador, PORTA_AVIOES, 1);
+    posicionarNaviosAleatorios(tabuleiroComputador, NAVIO_TANQUE, 2);
+    posicionarNaviosAleatorios(tabuleiroComputador, CONTRATORPEDEIRO, 2);
+    posicionarNaviosAleatorios(tabuleiroComputador, SUBMARINO, 3);
+
+    while (acertosJogador < (1 + 2 + 2 + 3) && acertosComputador < (1 + 2 + 2 + 3))
+    {
+        printf("Tabuleiro do Jogador:\n");
+        imprimirTabuleiro(tabuleiroJogador);
+        printf("\n");
+        printf("Tabuleiro da CPU:\n");
+        imprimirTabuleiro(tabuleiroComputador);
+
+        if (ataqueJogador(tabuleiroComputador, &acertosJogador))
+        {
+            if (acertosJogador == (1 + 2 + 2 + 3))
+            {
+                printf("Você venceu! 🎆\n");
+                break;
+            }
+        }
+
+        if (ataqueComputador(tabuleiroJogador, &acertosComputador))
+        {
+            if (acertosComputador == (1 + 2 + 2 + 3))
+            {
+                printf("A CPU venceu! 🎆\n");
+                break;
+            }
+        }
+    }
+
+    return 0;
+}
